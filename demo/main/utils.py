@@ -8,12 +8,17 @@ def hostname_from_request(request):
 
 def tenant_schema_from_request(request):
     hostname = hostname_from_request(request)
+    schema_name = hostname.split(".")[0]
     tenants_map = get_tenants_map()
-    return tenants_map.get(hostname)
+    return tenants_map.get(schema_name)
 
 
 def set_tenant_schema_for_request(request):
     schema = tenant_schema_from_request(request)
+    
+    if schema is None:
+        schema = 'public'  # Default to public schema
+    
     with connection.cursor() as cursor:
         cursor.execute(f"SET search_path to {schema}")
 
